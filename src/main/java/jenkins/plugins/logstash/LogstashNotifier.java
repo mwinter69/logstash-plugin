@@ -99,6 +99,12 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
       return true;
     }
 
+    // globally enabled and active. No need to send the data another time.
+    if (run.getAction(LogstashMarkerAction.class) != null)
+    {
+      return true;
+    }
+
     PrintStream errorPrintStream = listener.getLogger();
     LogstashWriter logstash = getLogStashWriter(run, errorPrintStream, listener);
     logstash.writeBuildLog(maxLines);

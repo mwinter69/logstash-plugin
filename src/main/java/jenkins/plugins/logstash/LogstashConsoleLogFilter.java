@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
 
@@ -19,12 +18,14 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
   private static final Logger LOGGER = Logger.getLogger(LogstashConsoleLogFilter.class.getName());
 
   private transient Run<?, ?> run;
+
   public LogstashConsoleLogFilter() {}
 
   public LogstashConsoleLogFilter(Run<?, ?> run)
   {
     this.run = run;
   }
+
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -37,27 +38,54 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
       return logger;
     }
 
-    if (build != null && build instanceof AbstractBuild<?, ?>)
-    {
-      if (isLogstashEnabled(build))
-      {
-        LogstashWriter logstash = getLogStashWriter(build, logger);
-        return new LogstashOutputStream(logger, logstash);
-      }
-      else
-      {
-        return logger;
-      }
-    }
+    /*
+     * Currently pipeline is not supporting global ConsoleLogFilters. So even when we have it enabled globally
+     * we would not log to an indexer without the logstash step.
+     * But when pipeline supports global ConsoleLogFilters we don't want to log twice when we have the step in
+     * the pipeline.
+     * With the LogstashMarkerRunAction we can detect if it is enabled globally and if pipeline is supporting
+     * global ConsoleLogFilters.
+     * The LogstashMarkerRunAction will be only attached to a WorkflowRun when pipeline supports global
+     * ConsoleLogFilters (JENKINS-45693). And the assumption is that the marker action is attached before the
+     * logstashStep is initialized.
+     * This marker action will also disable the notifier.
+     *
+     */
+
+    /*
+     * A pipeline step uses the constructor which sets run.
+     */
     if (run != null)
     {
-      LogstashWriter logstash = getLogStashWriter(run, logger);
-      return new LogstashOutputStream(logger, logstash);
+      if (run.getAction(LogstashMarkerAction.class) != null)
+      {
+        LOGGER.log(Level.FINEST, "Logstash is enabled globally. No need to decorate the logger another time for {0}",
+            run.toString());
+        return logger;
+      }
+      return getLogstashOutputStream(run, logger);
     }
-    else
+
+    /*
+     * Not pipeline step so @{code build} should be set.
+     *
+     */
+    if (isLogstashEnabled(build))
     {
-      return logger;
+      if (build.getAction(LogstashMarkerAction.class) == null)
+      {
+        build.addAction(new LogstashMarkerAction());
+      }
+      return getLogstashOutputStream(build, logger);
     }
+
+    return logger;
+  }
+
+  private LogstashOutputStream getLogstashOutputStream(Run<?, ?> run, OutputStream logger)
+  {
+    LogstashWriter logstash = getLogStashWriter(run, logger);
+    return new LogstashOutputStream(logger, logstash);
   }
 
   LogstashWriter getLogStashWriter(Run<?, ?> build, OutputStream errorStream)
@@ -65,10 +93,24 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
     return new LogstashWriter(build, errorStream, null, build.getCharset());
   }
 
-  private boolean isLogstashEnabled(Run<?, ?> build)
+  private boolean isLogstashEnabledGlobally()
   {
     LogstashConfiguration configuration = LogstashConfiguration.getInstance();
     if (configuration.isEnableGlobally())
+    {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isLogstashEnabled(Run<?, ?> build)
+  {
+    if (build == null)
+    {
+      return false;
+    }
+
+    if (isLogstashEnabledGlobally())
     {
       return true;
     }
@@ -83,5 +125,4 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
     }
     return false;
   }
-
 }
