@@ -28,9 +28,25 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * {@inheritDoc}
+   *
+   * Currently pipeline is not supporting global ConsoleLogFilters. So even when we have it enabled globally
+   * we would not log to an indexer without the logstash step.
+   * But when pipeline supports global ConsoleLogFilters we don't want to log twice when we have the step in
+   * the pipeline.
+   * With the LogstashMarkerRunAction we can detect if it is enabled globally and if pipeline is supporting
+   * global ConsoleLogFilters.
+   * The LogstashMarkerRunAction will be only attached to a WorkflowRun when pipeline supports global
+   * ConsoleLogFilters (JENKINS-45693). And the assumption is that the marker action is attached before the
+   * logstashStep is initialized.
+   * This marker action will also disable the notifier.
+   *
+   */
   @Override
   public OutputStream decorateLogger(Run build, OutputStream logger) throws IOException, InterruptedException
   {
+
     LogstashConfiguration configuration = LogstashConfiguration.getInstance();
     if (!configuration.isEnabled())
     {
@@ -38,23 +54,8 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
       return logger;
     }
 
-    /*
-     * Currently pipeline is not supporting global ConsoleLogFilters. So even when we have it enabled globally
-     * we would not log to an indexer without the logstash step.
-     * But when pipeline supports global ConsoleLogFilters we don't want to log twice when we have the step in
-     * the pipeline.
-     * With the LogstashMarkerRunAction we can detect if it is enabled globally and if pipeline is supporting
-     * global ConsoleLogFilters.
-     * The LogstashMarkerRunAction will be only attached to a WorkflowRun when pipeline supports global
-     * ConsoleLogFilters (JENKINS-45693). And the assumption is that the marker action is attached before the
-     * logstashStep is initialized.
-     * This marker action will also disable the notifier.
-     *
-     */
 
-    /*
-     * A pipeline step uses the constructor which sets run.
-     */
+    // A pipeline step uses the constructor which sets run.
     if (run != null)
     {
       if (run.getAction(LogstashMarkerAction.class) != null)
@@ -66,10 +67,7 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
       return getLogstashOutputStream(run, logger);
     }
 
-    /*
-     * Not pipeline step so @{code build} should be set.
-     *
-     */
+    // Not pipeline step so @{code build} should be set.
     if (isLogstashEnabled(build))
     {
       if (build.getAction(LogstashMarkerAction.class) == null)
