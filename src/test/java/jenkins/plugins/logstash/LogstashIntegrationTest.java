@@ -287,7 +287,7 @@ public class LogstashIntegrationTest
 
     public void enabledGloballyNotifierWillNotSend() throws Exception
     {
-      when(logstashConfiguration.isEnableGlobally()).thenReturn(true);
+      LogstashConfiguration.getInstance().setEnableGlobally(true);
       project.getPublishersList().add(new LogstashNotifier(10, false));
 
       QueueTaskFuture<FreeStyleBuild> f = project.scheduleBuild2(0);
