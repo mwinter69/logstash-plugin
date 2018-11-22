@@ -10,6 +10,7 @@ import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
+import hudson.tasks.Publisher;
 
 @Extension(ordinal = 1000)
 public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serializable
@@ -94,8 +95,9 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
   private boolean isLogstashEnabledGlobally()
   {
     LogstashConfiguration configuration = LogstashConfiguration.getInstance();
-    if (configuration.isEnableGlobally())
+    if (configuration.getGlobalMode() == GloballyEnabledMode.LINEMODE)
     {
+      LOGGER.log(Level.INFO, "Line mode is enabled globally.");
       return true;
     }
     return false;
@@ -108,17 +110,22 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
       return false;
     }
 
-    if (isLogstashEnabledGlobally())
-    {
-      return true;
-    }
-
     if (build.getParent() instanceof AbstractProject)
     {
       AbstractProject<?, ?> project = (AbstractProject<?, ?>)build.getParent();
-      if (project.getProperty(LogstashJobProperty.class) != null)
+      LogstashJobProperty property = project.getProperty(LogstashJobProperty.class);
+      if (property != null)
       {
-        return true;
+        LOGGER.log(Level.INFO, "Property is set and disableGlobal is: " + property.isDisableGlobal());
+        return !property.isDisableGlobal();
+      }
+      else
+      {
+        if (PluginImpl.getLogstashNotifier(project) != null)
+        {
+          return false;
+        }
+        return isLogstashEnabledGlobally();
       }
     }
     return false;

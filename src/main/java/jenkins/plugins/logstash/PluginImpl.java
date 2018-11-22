@@ -25,7 +25,9 @@ package jenkins.plugins.logstash;
 
 import hudson.DescriptorExtensionList;
 import hudson.Plugin;
+import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
+import hudson.tasks.Publisher;
 import jenkins.plugins.logstash.configuration.LogstashIndexer;
 
 import java.util.logging.Logger;
@@ -45,6 +47,24 @@ public class PluginImpl extends Plugin {
   public DescriptorExtensionList<LogstashIndexer<?>, Descriptor<LogstashIndexer<?>>> getAllIndexers()
   {
     return LogstashIndexer.all();
+  }
+
+  /**
+   * Gets the {@code LogstashNotifier} that is configured in this project.
+   *
+   * @param project The project to look for a {@code LogstashNotifier}.
+   * @return The {@code LogstashNotifier} or null, if no {@code LogstashNotifier} is configured.
+   */
+  public static LogstashNotifier getLogstashNotifier(AbstractProject<?, ?> project)
+  {
+    for (Publisher publisher: project.getPublishersList())
+    {
+      if (publisher instanceof LogstashNotifier)
+      {
+        return (LogstashNotifier) publisher;
+      }
+    }
+    return null;
   }
 }
 

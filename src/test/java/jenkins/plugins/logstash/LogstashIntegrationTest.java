@@ -203,9 +203,27 @@ public class LogstashIntegrationTest
     }
 
     @Test
-    public void enableGlobally() throws Exception
+    public void enableGloballyLineMode() throws Exception
     {
-      LogstashConfiguration.getInstance().setEnableGlobally(true);
+      LogstashConfiguration.getInstance().setGlobalMode(GloballyEnabledMode.LINEMODE);
+      QueueTaskFuture<FreeStyleBuild> f = project.scheduleBuild2(0);
+
+      FreeStyleBuild build = f.get();
+      assertThat(build.getResult(), equalTo(Result.SUCCESS));
+      List<JSONObject> dataLines = memoryDao.getOutput();
+      assertThat(dataLines.size(), is(4));
+      JSONObject firstLine = dataLines.get(0);
+      JSONObject lastLine = dataLines.get(dataLines.size()-1);
+      JSONObject data = firstLine.getJSONObject("data");
+      assertThat(data.getString("buildHost"),equalTo("Jenkins"));
+      assertThat(data.getString("buildLabel"),equalTo("master"));
+      assertThat(lastLine.getJSONArray("message").get(0).toString(),equalTo("Finished: SUCCESS"));
+    }
+
+    @Test
+    public void enableGloballyNotifierMode() throws Exception
+    {
+      LogstashConfiguration.getInstance().setGlobalMode(GloballyEnabledMode.LINEMODE);
       QueueTaskFuture<FreeStyleBuild> f = project.scheduleBuild2(0);
 
       FreeStyleBuild build = f.get();
@@ -287,7 +305,7 @@ public class LogstashIntegrationTest
 
     public void enabledGloballyNotifierWillNotSend() throws Exception
     {
-      LogstashConfiguration.getInstance().setEnableGlobally(true);
+      LogstashConfiguration.getInstance().setGlobalMode(GloballyEnabledMode.LINEMODE);
       project.getPublishersList().add(new LogstashNotifier(10, false));
 
       QueueTaskFuture<FreeStyleBuild> f = project.scheduleBuild2(0);

@@ -4,7 +4,7 @@
     <f:entry title="${%Max lines}" field="maxLines">
       <f:number default="1000" value="${instance.maxLines}" clazz="required number"/>
     </f:entry>
-    <f:entry title="${%Can fail build}" field="failBuild">
+    <f:entry title="${%Can fail build}" field="failBuild" help="/plugin/logstash/help/help-maxLines.html">
       <f:checkbox checked="${instance.failBuild}" />
     </f:entry>
   </f:block>
