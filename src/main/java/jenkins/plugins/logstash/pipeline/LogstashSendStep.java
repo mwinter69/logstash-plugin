@@ -18,6 +18,10 @@ import hudson.model.TaskListener;
 import jenkins.plugins.logstash.LogstashWriter;
 import jenkins.plugins.logstash.Messages;
 
+/**
+ * Sends the tail of the log in a single event to a logstash indexer.
+ * Pipeline counterpart of the LogstashNotifier.
+ */
 public class LogstashSendStep extends Step
 {
 

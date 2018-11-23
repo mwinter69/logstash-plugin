@@ -22,7 +22,8 @@ import jenkins.YesNoMaybe;
 import jenkins.plugins.logstash.LogstashConsoleLogFilter;
 
 /**
- * Pipeline plug-in step for logstash.
+ * This is the pipeline counterpart of the LogstashJobProperty.
+ * This step will send the logs line by line to an indexer.
  */
 public class LogstashStep extends Step {
 
