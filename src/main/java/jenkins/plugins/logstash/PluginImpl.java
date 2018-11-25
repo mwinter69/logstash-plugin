@@ -27,10 +27,18 @@ import hudson.DescriptorExtensionList;
 import hudson.Plugin;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
+import hudson.model.Project;
+import hudson.tasks.BuildStep;
+import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
 import jenkins.plugins.logstash.configuration.LogstashIndexer;
 
 import java.util.logging.Logger;
+
+import org.jenkins_ci.plugins.flexible_publish.ConditionalPublisher;
+import org.jenkins_ci.plugins.flexible_publish.FlexiblePublisher;
+import org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder;
+import org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder;
 
 public class PluginImpl extends Plugin {
   private final static Logger LOG = Logger.getLogger(PluginImpl.class.getName());
@@ -50,18 +58,61 @@ public class PluginImpl extends Plugin {
   }
 
   /**
-   * Gets the {@code LogstashNotifier} that is configured in this project.
+   * Gets the {@link LogstashNotifier} that is configured in this project.
    *
-   * @param project The project to look for a {@code LogstashNotifier}.
-   * @return The {@code LogstashNotifier} or null, if no {@code LogstashNotifier} is configured.
+   * @param project The project to look for a {@link LogstashNotifier}.
+   * @return The {@link LogstashNotifier} or null, if no {@link LogstashNotifier} is configured.
    */
   public static LogstashNotifier getLogstashNotifier(AbstractProject<?, ?> project)
   {
+    if (project instanceof Project)
+    {
+      Project<?, ?> p = (Project<?, ?>) project;
+      for (Builder builder: p.getBuilders())
+      {
+        if (builder instanceof SingleConditionalBuilder)
+        {
+          SingleConditionalBuilder scb = (SingleConditionalBuilder) builder;
+          if (scb.getBuildStep() instanceof LogstashNotifier)
+          {
+            LOG.info("Found LogstashNotifier in single conditional builder");
+            return (LogstashNotifier) scb.getBuildStep();
+          }
+        }
+        if (builder instanceof ConditionalBuilder)
+        {
+          ConditionalBuilder cb = (ConditionalBuilder) builder;
+          for (BuildStep bs: cb.getConditionalbuilders())
+          {
+            if (bs instanceof LogstashNotifier)
+            {
+              LOG.info("Found LogstashNotifier in single conditional builder");
+              return (LogstashNotifier) bs;
+            }
+          }
+        }
+      }
+    }
     for (Publisher publisher: project.getPublishersList())
     {
       if (publisher instanceof LogstashNotifier)
       {
         return (LogstashNotifier) publisher;
+      }
+      if (publisher instanceof FlexiblePublisher)
+      {
+        FlexiblePublisher fp = (FlexiblePublisher) publisher;
+        for (ConditionalPublisher cp: fp.getPublishers())
+        {
+          for (BuildStep bs: cp.getPublisherList())
+          {
+            if (bs instanceof LogstashNotifier)
+            {
+              LOG.info("Found LogstashNotifier in flexible publish.");
+              return (LogstashNotifier) bs;
+            }
+          }
+        }
       }
     }
     return null;

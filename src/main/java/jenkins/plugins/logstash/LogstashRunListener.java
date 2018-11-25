@@ -8,6 +8,7 @@ import org.acegisecurity.ui.AbstractProcessingFilter;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import hudson.tasks.Publisher;
 
@@ -21,8 +22,14 @@ public class LogstashRunListener extends RunListener<Run<?,?>>
   public void onFinalized(Run<?, ?> run)
   {
     LogstashConfiguration config = LogstashConfiguration.getInstance();
-    if (config.isEnabled() && config.getGlobalMode() == GloballyEnabledMode.NOTIFIERMODE)
+    if (!config.isEnabled())
     {
+      return;
+    }
+    LogstashMarkerAction markerAction = run.getAction(LogstashMarkerAction.class);
+    if ((markerAction != null && markerAction.isRunNotifierAtEnd()) || config.getGlobalMode() == GloballyEnabledMode.NOTIFIERMODE)
+    {
+      int maxLines = config.getMaxLines();
       LOGGER.log(Level.INFO, "Notifier mode is enabled");
       if (run.getParent() instanceof AbstractProject)
       {
@@ -34,15 +41,23 @@ public class LogstashRunListener extends RunListener<Run<?,?>>
           LOGGER.log(Level.INFO, "Job Property is set. Disabling global notifier mode.");
           return;
         }
-        //don't run if project has a the notifier explicitly enabled
+        //don't run if project has the notifier explicitly enabled
         if (PluginImpl.getLogstashNotifier(project) != null)
         {
-          LOGGER.log(Level.INFO, "Job has explicit Notifier. Disabling global notifier mode.");
-          return;
+          LOGGER.log(Level.INFO, "Job has explicit Notifier. Checking if it has runs at end");
+          if (markerAction == null || !markerAction.isRunNotifierAtEnd())
+          {
+            LOGGER.log(Level.INFO, "Job has explicit Notifier not running at end.");
+            return;
+          }
         }
       }
+      if (markerAction != null && markerAction.isRunNotifierAtEnd())
+      {
+        maxLines = markerAction.getMaxLines();
+      }
       LogstashWriter logstash = new LogstashWriter(run, null, null, run.getCharset());
-      logstash.writeBuildLog(config.getMaxLines());
+      logstash.writeBuildLog(maxLines);
     }
   }
 }
