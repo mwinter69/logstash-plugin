@@ -75,7 +75,6 @@ public class PluginImpl extends Plugin {
           SingleConditionalBuilder scb = (SingleConditionalBuilder) builder;
           if (scb.getBuildStep() instanceof LogstashNotifier)
           {
-            LOG.info("Found LogstashNotifier in single conditional builder");
             return (LogstashNotifier) scb.getBuildStep();
           }
         }
@@ -86,7 +85,6 @@ public class PluginImpl extends Plugin {
           {
             if (bs instanceof LogstashNotifier)
             {
-              LOG.info("Found LogstashNotifier in single conditional builder");
               return (LogstashNotifier) bs;
             }
           }
@@ -108,7 +106,6 @@ public class PluginImpl extends Plugin {
           {
             if (bs instanceof LogstashNotifier)
             {
-              LOG.info("Found LogstashNotifier in flexible publish.");
               return (LogstashNotifier) bs;
             }
           }

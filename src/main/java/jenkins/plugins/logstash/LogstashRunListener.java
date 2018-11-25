@@ -30,24 +30,21 @@ public class LogstashRunListener extends RunListener<Run<?,?>>
     if ((markerAction != null && markerAction.isRunNotifierAtEnd()) || config.getGlobalMode() == GloballyEnabledMode.NOTIFIERMODE)
     {
       int maxLines = config.getMaxLines();
-      LOGGER.log(Level.INFO, "Notifier mode is enabled");
       if (run.getParent() instanceof AbstractProject)
       {
-        LOGGER.log(Level.INFO, "Abstract Project");
         AbstractProject<?, ?> project = (AbstractProject<?, ?>) run.getParent();
         //don't run if project has a the wrapper explicitly enabled or disabled global settings
         if (project.getProperty(LogstashJobProperty.class) != null)
         {
-          LOGGER.log(Level.INFO, "Job Property is set. Disabling global notifier mode.");
+          LOGGER.log(Level.FINEST, "Job Property is set. Disabling global notifier mode.");
           return;
         }
         //don't run if project has the notifier explicitly enabled
         if (PluginImpl.getLogstashNotifier(project) != null)
         {
-          LOGGER.log(Level.INFO, "Job has explicit Notifier. Checking if it has runs at end");
           if (markerAction == null || !markerAction.isRunNotifierAtEnd())
           {
-            LOGGER.log(Level.INFO, "Job has explicit Notifier not running at end.");
+            LOGGER.log(Level.FINEST, "Job has explicit Notifier not running at end.");
             return;
           }
         }

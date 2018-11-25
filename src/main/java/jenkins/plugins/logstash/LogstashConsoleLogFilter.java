@@ -86,7 +86,7 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
     LogstashConfiguration configuration = LogstashConfiguration.getInstance();
     if (configuration.getGlobalMode() == GloballyEnabledMode.LINEMODE)
     {
-      LOGGER.log(Level.INFO, "Line mode is enabled globally.");
+      LOGGER.log(Level.FINEST, "Line mode is enabled globally.");
       return true;
     }
     return false;
@@ -105,7 +105,7 @@ public class LogstashConsoleLogFilter extends ConsoleLogFilter implements Serial
       LogstashJobProperty property = project.getProperty(LogstashJobProperty.class);
       if (property != null)
       {
-        LOGGER.log(Level.INFO, "Property is set and disableGlobal is: " + property.isDisableGlobal());
+        LOGGER.log(Level.FINEST, "Property is set and disableGlobal is: " + property.isDisableGlobal());
         return !property.isDisableGlobal();
       }
       else
