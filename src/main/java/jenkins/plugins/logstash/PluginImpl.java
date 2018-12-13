@@ -27,7 +27,12 @@ import hudson.DescriptorExtensionList;
 import hudson.Plugin;
 import hudson.model.Descriptor;
 import jenkins.plugins.logstash.configuration.LogstashIndexer;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition.DataProviderDescriptor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PluginImpl extends Plugin {
@@ -45,6 +50,17 @@ public class PluginImpl extends Plugin {
   public DescriptorExtensionList<LogstashIndexer<?>, Descriptor<LogstashIndexer<?>>> getAllIndexers()
   {
     return LogstashIndexer.all();
+  }
+
+  public List<DataProviderDescriptor> getAllDataProviders()
+  {
+    List<DataProviderDescriptor> dataProviders = new ArrayList<>();
+    for (DataProviderDescriptor descriptor: DataProviderDefinition.all())
+    {
+      if (descriptor.isApplicable())
+        dataProviders.add(descriptor);
+    }
+    return DataProviderDefinition.all();
   }
 }
 

@@ -19,6 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import jenkins.plugins.logstash.LogstashConfiguration;
+import jenkins.plugins.logstash.dataproviders.BuildData;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.crypto.*"})

@@ -38,14 +38,18 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
+import jenkins.plugins.logstash.dataproviders.DataProviderConfiguration;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition;
 import jenkins.tasks.SimpleBuildStep;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.jenkinsci.Symbol;
 
@@ -62,6 +66,8 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
   private final int maxLines;
   private final boolean failBuild;
 
+  private DataProviderConfiguration dataProviderConfiguration;
+
   @DataBoundConstructor
   public LogstashNotifier(int maxLines, boolean failBuild) {
     this.maxLines = maxLines;
@@ -76,6 +82,17 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
   public boolean isFailBuild()
   {
     return failBuild;
+  }
+
+  public DataProviderConfiguration getDataProviderConfiguration()
+  {
+    return dataProviderConfiguration;
+  }
+
+  @DataBoundSetter
+  public void setDataProviderConfiguration(DataProviderConfiguration dataProviderConfiguration)
+  {
+    this.dataProviderConfiguration = dataProviderConfiguration;
   }
 
   @Override
@@ -107,7 +124,12 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
 
   // Method to encapsulate calls for unit-testing
   LogstashWriter getLogStashWriter(Run<?, ?> run, OutputStream errorStream, TaskListener listener) {
-    return new LogstashWriter(run, errorStream, listener, run.getCharset());
+    List<DataProviderDefinition> dataProviders = null;
+    if (dataProviderConfiguration != null)
+    {
+      dataProviders = dataProviderConfiguration.getDataProviders();
+    }
+    return new LogstashWriter(run, errorStream, listener, run.getCharset(), dataProviders);
   }
 
   @Override

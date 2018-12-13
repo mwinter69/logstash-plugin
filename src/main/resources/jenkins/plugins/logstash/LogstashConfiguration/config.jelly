@@ -11,6 +11,11 @@
 	    <f:entry title="Use millisecond time stamps" field="milliSecondTimestamps">
 	    	<f:checkbox default="true"/>
 	    </f:entry>
+	    <f:entry title="Data Providers">
+		  <table style="margin-left: -3px;">
+		    <f:optionalProperty field="dataProviderConfiguration" title=""/>
+		  </table>
+	    </f:entry>
     </f:optionalBlock>
   </f:section>
 </j:jelly>

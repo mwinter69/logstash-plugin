@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+Collects data about failed, skipped and passed JUnit tests.
+</j:jelly>

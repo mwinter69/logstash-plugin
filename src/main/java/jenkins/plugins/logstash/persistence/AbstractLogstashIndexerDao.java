@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import jenkins.plugins.logstash.LogstashConfiguration;
+import jenkins.plugins.logstash.dataproviders.BuildData;
 import net.sf.json.JSONObject;
 
 /**
@@ -51,5 +52,4 @@ public abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao {
 
     return payload;
   }
-
 }

@@ -27,6 +27,7 @@ package jenkins.plugins.logstash.persistence;
 import java.io.IOException;
 import java.util.List;
 
+import jenkins.plugins.logstash.dataproviders.BuildData;
 import net.sf.json.JSONObject;
 
 /**

@@ -1,0 +1,12 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:nested>
+    <table>
+	  <f:optionalBlock field="dataProviderConfiguration" title="Data Providers" checked="${instance == null || instance[&quot;dataProviderConfiguration&quot;] != null}">
+	    <j:set var="descriptor" value="${app.getDescriptorOrDie(descriptor.getPropertyTypeOrDie(instance,field).clazz)}" />
+	    <j:set var="instance" value="${instance.dataProviderConfiguration}"/>
+	    <st:include from="${descriptor}" page="${descriptor.configPage}"/>
+	  </f:optionalBlock>
+	</table>
+  </f:nested>
+</j:jelly>

@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+Collects data about a root project if there is one, e.g. in Matrix Projects axis.
+</j:jelly> 

@@ -1,4 +1,19 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <st:include page="config.jelly" class="jenkins.plugins.logstash.LogstashNotifier"/>
+    <f:entry title="${%Max lines}" field="maxLines" help="/plugin/logstash/help/help-maxLines.html">
+      <f:number default="1000" value="${instance.maxLines}" clazz="required number"/>
+    </f:entry>
+    <f:entry title="${%Can fail build}" field="failBuild" help="/plugin/logstash/help/help-failBuild.html">
+      <f:checkbox checked="${instance.failBuild}" />
+    </f:entry>
+    <f:entry title="Data Providers" help="/plugin/logstash/help/help-dataProviders.html">
+	  <f:hetero-list name="dataProviders" 
+	                 items="${instance.dataProviders}"
+	                 descriptors="${app.getPlugin(&quot;logstash&quot;).allDataProviders}"
+	                 hasHeader="true" 
+	                 oneEach="true"
+	                 honorOrder="true"
+	                 addCaption="${%Add Data Provider}" 
+	          />
+    </f:entry>
 </j:jelly>

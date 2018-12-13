@@ -7,5 +7,14 @@
     <f:entry title="${%Can fail build}" field="failBuild" help="/plugin/logstash/help/help-failBuild.html">
       <f:checkbox checked="${instance.failBuild}" />
     </f:entry>
+	  <f:nested>
+	    <table>
+		  <f:optionalBlock field="dataProviderConfiguration" title="Data Providers" checked="${instance == null || instance[&quot;dataProviderConfiguration&quot;] != null}" parent="${instance}">
+		    <j:set var="descriptor" value="${app.getDescriptorOrDie(descriptor.getPropertyTypeOrDie(instance,field).clazz)}" />
+		    <j:set var="instance" value="${instance[field]}"/>
+		    <st:include from="${descriptor}" page="${descriptor.configPage}"/>
+		  </f:optionalBlock>
+		</table>
+	  </f:nested>
   </f:block>
 </j:jelly>

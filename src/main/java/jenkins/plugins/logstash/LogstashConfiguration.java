@@ -1,7 +1,9 @@
 package jenkins.plugins.logstash;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -9,22 +11,30 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.cloudbees.syslog.MessageFormat;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.http.client.utils.URIBuilder;
+
+import hudson.DescriptorExtensionList;
 import hudson.Extension;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
+import hudson.util.DescribableList;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import jenkins.plugins.logstash.LogstashInstallation.Descriptor;
 import jenkins.plugins.logstash.configuration.ElasticSearch;
 import jenkins.plugins.logstash.configuration.LogstashIndexer;
 import jenkins.plugins.logstash.configuration.RabbitMq;
 import jenkins.plugins.logstash.configuration.Redis;
 import jenkins.plugins.logstash.configuration.Syslog;
+import jenkins.plugins.logstash.dataproviders.DataProviderConfiguration;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition.DataProviderDescriptor;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
 import net.sf.json.JSONObject;
@@ -41,6 +51,7 @@ public class LogstashConfiguration extends GlobalConfiguration
   private boolean dataMigrated = false;
   private boolean enableGlobally = false;
   private boolean milliSecondTimestamps = true;
+  private DataProviderConfiguration dataProviderConfiguration;
   private transient LogstashIndexer<?> activeIndexer;
 
   // a flag indicating if we're currently in the configure method.
@@ -61,6 +72,28 @@ public class LogstashConfiguration extends GlobalConfiguration
       }
     }
     activeIndexer = logstashIndexer;
+  }
+
+  public DataProviderConfiguration getDataProviderConfiguration()
+  {
+    return dataProviderConfiguration;
+  }
+
+  @DataBoundSetter
+  public void setDataProviderConfiguration(DataProviderConfiguration dataProviderConfiguration)
+  {
+    this.dataProviderConfiguration = dataProviderConfiguration;
+  }
+
+  public List<DataProviderDefinition> getDataProviders()
+  {
+    List<DataProviderDefinition> dataProviders = null;
+    if (dataProviderConfiguration != null)
+    {
+      LOGGER.log(Level.INFO, "Data providers are configurewd");
+      dataProviders = dataProviderConfiguration.getDataProviders();
+    }
+    return dataProviders;
   }
 
   public boolean isEnabled()
@@ -246,7 +279,7 @@ public class LogstashConfiguration extends GlobalConfiguration
       save();
       return true;
     }
-    
+
     configuring = true;
 
     // when we bind the stapler request we get a new instance of logstashIndexer.
@@ -256,6 +289,13 @@ public class LogstashConfiguration extends GlobalConfiguration
     try
     {
       staplerRequest.bindJSON(this, json);
+
+      // When the dataProviderConfiguration is not checked we have to
+      // delete any existing configuration explicitly.
+      if (!json.has("dataProviderConfiguration"))
+      {
+        dataProviderConfiguration = null;
+      }
 
       try {
         // validate

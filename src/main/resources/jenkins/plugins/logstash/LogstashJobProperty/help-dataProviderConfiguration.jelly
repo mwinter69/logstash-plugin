@@ -1,0 +1,5 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+When unchecked the centrally configured data providers will be used.
+If centrally also no data providers are configured the default set of data providers is used.
+</j:jelly>

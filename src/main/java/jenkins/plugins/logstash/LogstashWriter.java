@@ -25,11 +25,12 @@
 package jenkins.plugins.logstash;
 
 
-import hudson.model.AbstractBuild;
 import hudson.model.TaskListener;
 import hudson.model.Run;
 import jenkins.model.Jenkins;
-import jenkins.plugins.logstash.persistence.BuildData;
+import jenkins.plugins.logstash.dataproviders.BuildData;
+import jenkins.plugins.logstash.dataproviders.DataProvider;
+import jenkins.plugins.logstash.dataproviders.DataProviderDefinition;
 import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +39,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -62,7 +65,7 @@ public class LogstashWriter {
   private boolean connectionBroken;
   private final Charset charset;
 
-  public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, Charset charset) {
+  public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, Charset charset, List<DataProviderDefinition> dataProviderDefinitions) {
     this.errorStream = error != null ? error : System.err;
     this.build = run;
     this.listener = listener;
@@ -73,7 +76,7 @@ public class LogstashWriter {
       this.buildData = null;
     } else {
       this.jenkinsUrl = getJenkinsUrl();
-      this.buildData = getBuildData();
+      this.buildData = getBuildData(dataProviderDefinitions);
     }
   }
 
@@ -150,12 +153,13 @@ public class LogstashWriter {
     return LogstashConfiguration.getInstance().getIndexerInstance();
   }
 
-  BuildData getBuildData() {
-    if (build instanceof AbstractBuild) {
-      return new BuildData((AbstractBuild<?, ?>) build, new Date(), listener);
-    } else {
-      return new BuildData(build, new Date(), listener);
-    }
+  BuildData getBuildData(List<DataProviderDefinition> dataProviderDefinitions) {
+    List<DataProvider> dataProviders = DataProviderDefinition.getEffectiveDataProviders(build, dataProviderDefinitions);
+
+    String timestamp = LogstashConfiguration.getInstance().getDateFormatter().format(build.getTimestamp().getTime());
+
+    BuildData buildData = new BuildData(dataProviders, timestamp);
+    return buildData;
   }
 
   String getJenkinsUrl() {
@@ -166,7 +170,6 @@ public class LogstashWriter {
    * Write a list of lines to the indexer as one Logstash payload.
    */
   private void write(List<String> lines) {
-    buildData.updateResult();
     JSONObject payload = dao.buildPayload(buildData, jenkinsUrl, lines);
     try {
       dao.push(payload.toString());
