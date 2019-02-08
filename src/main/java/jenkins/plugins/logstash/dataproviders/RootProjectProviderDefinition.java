@@ -1,14 +1,12 @@
 package jenkins.plugins.logstash.dataproviders;
 
-import java.io.Serializable;
-
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
 import hudson.model.Run;
 
-public class RootProjectProviderDefinition extends DefaultDataProviderDefinition implements StartDataProvider, LineDataProvider, EndDataProvider
+public class RootProjectProviderDefinition extends DefaultDataProviderDefinition implements LineDataProvider
 {
 
   private static final long serialVersionUID = 8751820442773040089L;

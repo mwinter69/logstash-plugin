@@ -11,7 +11,7 @@ import hudson.model.Run;
  * project name, full project name, build number, duration and the result.
  * It can't be disabled as this data is essential for correlating the events in an indexer
  */
-public class CoreDataProviderDefinition extends DataProviderDefinition implements StartDataProvider, LineDataProvider, EndDataProvider
+public class CoreDataProviderDefinition extends DataProviderDefinition implements LineDataProvider
 {
 
   private static final long serialVersionUID = 7832728184305500772L;

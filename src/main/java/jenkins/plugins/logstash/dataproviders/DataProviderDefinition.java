@@ -23,8 +23,6 @@ import jenkins.plugins.logstash.dataproviders.DefaultDataProviderDefinition.Defa
  * A DataProvider defines which data should be sent for to the different kinds of events.
  * In line mode a single event is sent when the build starts, for each individual log line and a single event
  * after the build has finished.
- * Providers should implement one or more of {@link StartDataProvider}, {@link LineDataProvider}
- * or {@link EndDataProvider}
  */
 public abstract class DataProviderDefinition extends AbstractDescribableImpl<DataProviderDefinition>
     implements ExtensionPoint, Describable<DataProviderDefinition>, Serializable
@@ -74,7 +72,7 @@ public abstract class DataProviderDefinition extends AbstractDescribableImpl<Dat
   /**
    * Returns the List of effective data provider definitions
    * In case no data providers are explicitly configured for a job, the notifier or the pipeline steps, the global
-   * configuration is used. If this as well returns and empty list the default data provider definitions are returned.
+   * configuration is used. If this as well returns null the default data provider definitions are returned.
    *
    * @param dataProviders
    * @return

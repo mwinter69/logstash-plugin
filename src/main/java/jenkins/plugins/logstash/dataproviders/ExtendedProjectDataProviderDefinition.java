@@ -6,7 +6,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.Extension;
 import hudson.model.Run;
 
-public class ExtendedProjectDataProviderDefinition extends DefaultDataProviderDefinition implements StartDataProvider, LineDataProvider, EndDataProvider
+public class ExtendedProjectDataProviderDefinition extends DefaultDataProviderDefinition implements LineDataProvider
 {
 
   private static final long serialVersionUID = 976097823480594667L;

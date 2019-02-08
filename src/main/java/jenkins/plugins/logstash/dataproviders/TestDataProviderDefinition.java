@@ -9,7 +9,7 @@ import hudson.model.Run;
 /**
  * This provider collects the JUnit results of builds
  */
-public class TestDataProviderDefinition extends DefaultDataProviderDefinition implements LineDataProvider, EndDataProvider
+public class TestDataProviderDefinition extends DefaultDataProviderDefinition implements LineDataProvider
 {
   private static final long serialVersionUID = 2640489929262704740L;
   private boolean recordPassingTests;

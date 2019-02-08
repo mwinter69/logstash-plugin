@@ -7,7 +7,7 @@ import hudson.Extension;
 import hudson.model.Run;
 import jenkins.metrics.impl.TimeInQueueAction;
 
-public class QueueDataProviderDefinition extends DataProviderDefinition implements EndDataProvider
+public class QueueDataProviderDefinition extends DataProviderDefinition
 {
   private static final long serialVersionUID = -1653413163469654223L;
 

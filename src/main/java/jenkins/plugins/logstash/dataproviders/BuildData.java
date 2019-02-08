@@ -1,14 +1,10 @@
 package jenkins.plugins.logstash.dataproviders;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import jenkins.plugins.logstash.LogstashConfiguration;
 import net.sf.json.JSONObject;
 
 /**
@@ -16,7 +12,6 @@ import net.sf.json.JSONObject;
  */
 public class BuildData
 {
-  private static Logger LOGGER = Logger.getLogger(BuildData.class.getName());
 
   private List<DataProvider> dataProviders = new ArrayList<>();
   private JSONObject data = new JSONObject();
@@ -68,7 +63,6 @@ public class BuildData
           data.element(entry.getKey(), entry.getValue());
         }
       }
-
     }
     return data;
   }
