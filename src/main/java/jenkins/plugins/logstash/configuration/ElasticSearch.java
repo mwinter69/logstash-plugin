@@ -11,6 +11,7 @@ import javax.activation.MimeTypeParseException;
 import java.security.cert.CertificateException;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -46,7 +47,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
 
   private String username;
   private Secret password;
-  private URI uri;
+  private String uri;
   private String mimeType;
   private String customServerCertificateId;
 
@@ -55,7 +56,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   {
   }
 
-  public URI getUri()
+  public String getUri()
   {
     return uri;
   }
@@ -71,10 +72,10 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   @DataBoundSetter
   public void setUri(URL url) throws URISyntaxException
   {
-    this.uri = url.toURI();
+    this.uri = url.toExternalForm();
   }
 
-  public void setUri(URI uri) throws URISyntaxException
+  public void setUri(String uri) throws URISyntaxException
   {
     this.uri = uri;
   }
@@ -184,7 +185,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   @Override
   public ElasticSearchDao createIndexerInstance()
   {
-    ElasticSearchDao esDao = new ElasticSearchDao(getUri(), username, Secret.toString(password));
+    ElasticSearchDao esDao = new ElasticSearchDao(URI.create(getUri()), username, Secret.toString(password));
 
     esDao.setMimeType(getMimeType());
     try {
@@ -221,6 +222,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   }
 
   @Extension
+  @Symbol("elasticSearch")
   public static class ElasticSearchDescriptor extends LogstashIndexerDescriptor
   {
     @Override

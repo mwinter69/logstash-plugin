@@ -175,7 +175,7 @@ public class LogstashConfiguration extends GlobalConfiguration
                   .setPort(descriptor.getPort())
                   .setPath("/" + descriptor.getKey()).build();
               ElasticSearch es = new ElasticSearch();
-              es.setUri(uri);
+              es.setUri(uri.toString());
               es.setUsername(descriptor.getUsername());
               es.setPassword(descriptor.getPassword());
               logstashIndexer = es;
@@ -246,7 +246,7 @@ public class LogstashConfiguration extends GlobalConfiguration
       save();
       return true;
     }
-    
+
     configuring = true;
 
     // when we bind the stapler request we get a new instance of logstashIndexer.

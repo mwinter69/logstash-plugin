@@ -128,7 +128,7 @@ public class LogstashConfigurationMigrationTest extends LogstashConfigurationTes
     assertThat(configuration.isMilliSecondTimestamps(),equalTo(false));
     assertThat(configuration.isEnabled(),equalTo(true));
     ElasticSearch es = (ElasticSearch) indexer;
-    URI uri = new URI("http://localhost:4567/logstash");
+    String uri = "http://localhost:4567/logstash";
     assertThat(es.getUri(),equalTo(uri));
     assertThat(es.getPassword(), equalTo("pwd"));
     assertThat(es.getUsername(), equalTo("user"));
