@@ -5,7 +5,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
 import hudson.model.Run;
-import jenkins.metrics.impl.TimeInQueueAction;
 
 public class QueueDataProviderDefinition extends DataProviderDefinition
 {

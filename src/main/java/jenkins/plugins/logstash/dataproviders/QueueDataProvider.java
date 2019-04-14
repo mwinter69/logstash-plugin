@@ -1,16 +1,11 @@
 package jenkins.plugins.logstash.dataproviders;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import hudson.model.Run;
 import jenkins.metrics.impl.TimeInQueueAction;
 import net.sf.json.JSONObject;
 
 public class QueueDataProvider extends DataProvider
 {
-  private static Logger LOGGER = Logger.getLogger(QueueDataProvider.class.getName());
-
 
   public QueueDataProvider(Run<?, ?> run)
   {

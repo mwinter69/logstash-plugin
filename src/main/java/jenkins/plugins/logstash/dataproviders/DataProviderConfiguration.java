@@ -7,11 +7,9 @@ import java.util.List;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import hudson.DescriptorExtensionList;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import jenkins.plugins.logstash.dataproviders.DataProviderDefinition.DataProviderDescriptor;
 
 public class DataProviderConfiguration extends AbstractDescribableImpl<DataProviderConfiguration>
 {
