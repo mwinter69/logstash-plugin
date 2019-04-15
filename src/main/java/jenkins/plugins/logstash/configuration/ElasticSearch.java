@@ -47,7 +47,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
 
   private String username;
   private Secret password;
-  private String uri;
+  private URI uri;
   private String mimeType;
   private String customServerCertificateId;
 
@@ -56,7 +56,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   {
   }
 
-  public String getUri()
+  public URI getUri()
   {
     return uri;
   }
@@ -72,13 +72,10 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   @DataBoundSetter
   public void setUri(URL url) throws URISyntaxException
   {
-    this.uri = url.toExternalForm();
+    this.uri = url.toURI();
   }
 
-  /*
-   * setUri(String) must be defined before setUri(URI), otherwise config as code will fail
-   */
-  public void setUri(String uri) throws URISyntaxException
+  public void setUri(URI uri)
   {
     this.uri = uri;
   }
@@ -188,7 +185,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
   @Override
   public ElasticSearchDao createIndexerInstance()
   {
-    ElasticSearchDao esDao = new ElasticSearchDao(URI.create(getUri()), username, Secret.toString(password));
+    ElasticSearchDao esDao = new ElasticSearchDao(getUri(), username, Secret.toString(password));
 
     esDao.setMimeType(getMimeType());
     try {

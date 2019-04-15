@@ -19,7 +19,8 @@ unclassified:
     enableGlobally: true
     enabled: true
     logstashIndexer:
-        logstash:
+        redis:
             host: "localhost"
             port: 9200
+            key: "redis"
     milliSecondTimestamps: true

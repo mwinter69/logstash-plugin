@@ -19,7 +19,9 @@ unclassified:
     enableGlobally: true
     enabled: true
     logstashIndexer:
-        logstash:
+        rabbitMq:
             host: "localhost"
             port: 9200
+            virtualHost: "/vhost"
+            username: "rabbit"
     milliSecondTimestamps: true
