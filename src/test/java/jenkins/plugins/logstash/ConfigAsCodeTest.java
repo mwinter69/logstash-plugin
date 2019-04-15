@@ -28,7 +28,7 @@ public class ConfigAsCodeTest
     assertThat(c.isMilliSecondTimestamps(), is(true));
     assertThat(c.getLogstashIndexer(), is(instanceOf(ElasticSearch.class)));
     ElasticSearch es = (ElasticSearch) c.getLogstashIndexer();
-    assertThat(es.getUri().toString(), is("http://localhost:9200/jenkins/test"));
+    assertThat(es.getUri(), is("http://localhost:9200/jenkins/test"));
     assertThat(es.getMimeType(), is("application/json"));
   }
 
