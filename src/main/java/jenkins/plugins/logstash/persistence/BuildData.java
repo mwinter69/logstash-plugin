@@ -268,8 +268,7 @@ public class BuildData implements Serializable {
   public void updateResult()
   {
     if (build != null) {
-      if (result == null && build.getResult() != null)
-      {
+      if (result == null && build.getResult() != null) {
         Result result = build.getResult();
         this.result = result == null ? null : result.toString();
       }

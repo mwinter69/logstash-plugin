@@ -193,8 +193,7 @@ public class ElasticSearch extends LogstashIndexer<ElasticSearchDao>
     if (!StringUtils.isBlank(customServerCertificateId)) {
       try {
           StandardCertificateCredentials certificateCredentials = getCredentials(customServerCertificateId);
-          if (certificateCredentials != null)
-          {
+          if (certificateCredentials != null) {
             esDao.setCustomKeyStore(certificateCredentials.getKeyStore(),
                 Secret.toString(certificateCredentials.getPassword()));
           }

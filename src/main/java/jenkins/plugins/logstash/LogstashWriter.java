@@ -210,8 +210,7 @@ public class LogstashWriter implements Serializable {
   private void logErrorMessage(String msg) {
     try {
       connectionBroken = true;
-      if (errorStream != null)
-      {
+      if (errorStream != null) {
         errorStream.write(msg.getBytes(charset));
         errorStream.flush();
       }

@@ -64,8 +64,7 @@ public class LogstashStep extends Step {
     public boolean start() throws Exception {
       StepContext context = getContext();
       BodyInvoker invoker = context.newBodyInvoker().withCallback(BodyExecutionCallback.wrap(context));
-      if (LogstashConfiguration.getInstance().isEnableGlobally())
-      {
+      if (LogstashConfiguration.getInstance().isEnableGlobally()) {
         context.get(TaskListener.class).getLogger().println("The logstash step is unnecessary when logstash is enabled for all builds.");
       } else {
             invoker.withContext(getMergedDecorator(context));
@@ -110,8 +109,7 @@ public class LogstashStep extends Step {
     }
 
     @Override
-    public Set<? extends Class<?>> getRequiredContext()
-    {
+    public Set<? extends Class<?>> getRequiredContext() {
       return ImmutableSet.of(Run.class);
     }
   }

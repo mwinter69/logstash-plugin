@@ -113,21 +113,16 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
     clientBuilder = factory;
   }
 
-  private void getClientBuilder() throws IOException
-  {
+  private void getClientBuilder() throws IOException {
     if (clientBuilder == null) {
       clientBuilder = HttpClientBuilder.create();
-      if (keystoreBytes != null)
-      {
+      if (keystoreBytes != null) {
         KeyStore trustStore;
-        try
-        {
+        try {
           trustStore = KeyStore.getInstance("PKCS12");
           trustStore.load(new ByteArrayInputStream(keystoreBytes), keyStorePassword.toCharArray());
           SSLHelper.setClientBuilderSSLContext(clientBuilder, trustStore);
-        }
-        catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | KeyManagementException e)
-        {
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | KeyManagementException e) {
           throw new IOException(e);
         }
       }
@@ -183,8 +178,7 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
   }
 
   public void setCustomKeyStore(KeyStore customKeyStore, String keyStorePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-    if (customKeyStore != null)
-    {
+    if (customKeyStore != null) {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       customKeyStore.store(bos, keyStorePassword.toCharArray());
       keystoreBytes = bos.toByteArray();
