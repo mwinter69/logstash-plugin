@@ -26,10 +26,10 @@ public class GlobalDecorator extends TaskListenerDecorator {
   private String stageName;
   private String agentName;
 
-  public GlobalDecorator(Run<?, ?> run) {
+  public GlobalDecorator(WorkflowRun run) {
     this(run, null, null);
   }
-  public GlobalDecorator(Run<?, ?> run, String stageName, String agentName) {
+  public GlobalDecorator(WorkflowRun run, String stageName, String agentName) {
     LOGGER.log(Level.INFO, "Creating decorator for {0}", run.toString());
     this.run = run;
     this.stageName = stageName;
@@ -54,7 +54,7 @@ public class GlobalDecorator extends TaskListenerDecorator {
       try {
         Queue.Executable executable = owner.getExecutable();
         if (executable instanceof WorkflowRun) {
-          return new GlobalDecorator((Run<?, ?>) executable);
+          return new GlobalDecorator((WorkflowRun) executable);
         }
       } catch (IOException x) {
         LOGGER.log(Level.WARNING, null, x);

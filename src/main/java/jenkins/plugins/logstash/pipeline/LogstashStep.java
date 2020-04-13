@@ -13,6 +13,7 @@ import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
 import org.jenkinsci.plugins.workflow.graph.BlockStartNode;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.graph.StepNode;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
@@ -92,7 +93,7 @@ public class LogstashStep extends Step {
         }
       }
       String agentName = getAgentName(node);
-      return TaskListenerDecorator.merge(context.get(TaskListenerDecorator.class), new GlobalDecorator(run, stageName, agentName));
+      return TaskListenerDecorator.merge(context.get(TaskListenerDecorator.class), new GlobalDecorator((WorkflowRun) run, stageName, agentName));
     }
 
     private String getAgentName(FlowNode node) {
