@@ -113,20 +113,33 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
     clientBuilder = factory;
   }
 
-  private synchronized void getClientBuilder() throws IOException {
+  private byte[] getKeystoreBytes() {
+    return keystoreBytes;
+  }
+
+  private String getKeyStorePassword() {
+    return keyStorePassword;
+  }
+
+  private synchronized HttpClientBuilder getClientBuilder() throws IOException {
     if (clientBuilder == null) {
       clientBuilder = HttpClientBuilder.create();
-      if (keystoreBytes != null) {
+      if (getKeystoreBytes() != null) {
         KeyStore trustStore;
         try {
           trustStore = KeyStore.getInstance("PKCS12");
-          trustStore.load(new ByteArrayInputStream(keystoreBytes), keyStorePassword.toCharArray());
+          String pwd = getKeyStorePassword();
+          if (pwd == null) {
+            pwd = "";
+          }
+          trustStore.load(new ByteArrayInputStream(getKeystoreBytes()), pwd.toCharArray());
           SSLHelper.setClientBuilderSSLContext(clientBuilder, trustStore);
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | KeyManagementException e) {
           throw new IOException(e);
         }
       }
     }
+    return clientBuilder;
   }
 
 
@@ -204,8 +217,7 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
   public void push(String data) throws IOException {
     HttpPost post = getHttpPost(data);
 
-    getClientBuilder();
-    try (CloseableHttpClient httpClient = clientBuilder.build(); CloseableHttpResponse response = httpClient.execute(post)) {
+    try (CloseableHttpClient httpClient = getClientBuilder().build(); CloseableHttpResponse response = httpClient.execute(post)) {
       if (!successCodes.contains(response.getStatusLine().getStatusCode())) {
         throw new IOException(this.getErrorMessage(response));
       }

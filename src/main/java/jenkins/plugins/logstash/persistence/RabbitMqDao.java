@@ -85,11 +85,12 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     initPool();
   }
 
-  private synchronized void getPool() {
+  private synchronized ConnectionFactory getPool() {
     if (pool == null) {
       pool = new ConnectionFactory();
       initPool();
     }
+    return pool;
   }
 
   private void initPool() {
@@ -142,8 +143,7 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     Connection connection = null;
     Channel channel = null;
     try {
-      getPool();
-      connection = pool.newConnection();
+      connection = getPool().newConnection();
       channel = connection.createChannel();
       // Ensure the queue exists
 
