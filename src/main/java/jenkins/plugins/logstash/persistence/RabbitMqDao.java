@@ -85,7 +85,7 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     initPool();
   }
 
-  private void getPool() {
+  private synchronized void getPool() {
     if (pool == null) {
       pool = new ConnectionFactory();
       initPool();

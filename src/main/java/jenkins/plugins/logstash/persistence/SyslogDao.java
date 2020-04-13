@@ -40,7 +40,7 @@ public class SyslogDao extends HostBasedLogstashIndexerDao {
     return messageFormat;
   }
 
-  private void getMessageSender() {
+  private synchronized void getMessageSender() {
     if (messageSender == null) {
       messageSender = new UdpSyslogMessageSender();
     }

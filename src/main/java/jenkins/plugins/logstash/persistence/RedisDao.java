@@ -74,7 +74,7 @@ public class RedisDao extends HostBasedLogstashIndexerDao {
     pool = factory;
   }
 
-  private void getJedisPool() {
+  private synchronized void getJedisPool() {
     if (pool == null) {
       pool = new JedisPool(new JedisPoolConfig(), getHost(), getPort());
     }

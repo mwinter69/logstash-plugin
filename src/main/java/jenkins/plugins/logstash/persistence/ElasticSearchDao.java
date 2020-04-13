@@ -113,7 +113,7 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
     clientBuilder = factory;
   }
 
-  private void getClientBuilder() throws IOException {
+  private synchronized void getClientBuilder() throws IOException {
     if (clientBuilder == null) {
       clientBuilder = HttpClientBuilder.create();
       if (keystoreBytes != null) {
