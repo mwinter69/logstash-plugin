@@ -43,12 +43,15 @@ import com.rabbitmq.client.ConnectionFactory;
  * @since 1.0.0
  */
 public class RabbitMqDao extends HostBasedLogstashIndexerDao {
-  private final ConnectionFactory pool;
+
+  private static final long serialVersionUID = 1L;
+
+  private transient ConnectionFactory pool;
 
   private final String queue;
   private final String username;
   private final String password;
-  private final Charset charset;
+  private final String charset;
   private final String virtualHost;
 
 
@@ -68,7 +71,7 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     this.queue = queue;
     this.username = username;
     this.password = password;
-    this.charset = charset;
+    this.charset = charset.toString();
     this.virtualHost = vhost;
 
     if (StringUtils.isBlank(queue)) {
@@ -78,17 +81,33 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     // The ConnectionFactory must be a singleton
     // We assume this is used as a singleton as well
     // Calling this method means the configuration has changed and the pool must be re-initialized
-    pool = factory == null ? new ConnectionFactory() : factory;
-    pool.setHost(host);
-    pool.setPort(port);
-    if (virtualHost != null)
-    {
-      pool.setVirtualHost(virtualHost);
-    }
+    pool = factory;
+    initPool();
+  }
 
-    if (!StringUtils.isBlank(username) && !StringUtils.isBlank(password)) {
-      pool.setPassword(password);
-      pool.setUsername(username);
+  private void getPool()
+  {
+    if (pool == null) {
+      pool = new ConnectionFactory();
+      initPool();
+    }
+  }
+
+  private void initPool()
+  {
+    if (pool != null)
+    {
+      pool.setHost(getHost());
+      pool.setPort(getPort());
+      if (virtualHost != null)
+      {
+        pool.setVirtualHost(virtualHost);
+      }
+
+      if (!StringUtils.isBlank(username) && !StringUtils.isBlank(password)) {
+        pool.setPassword(password);
+        pool.setUsername(username);
+      }
     }
   }
 
@@ -126,6 +145,7 @@ public class RabbitMqDao extends HostBasedLogstashIndexerDao {
     Connection connection = null;
     Channel channel = null;
     try {
+      getPool();
       connection = pool.newConnection();
       channel = connection.createChannel();
       // Ensure the queue exists

@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 
 public class LogstashDao extends HostBasedLogstashIndexerDao {
 
+  private static final long serialVersionUID = 1L;
+
   public LogstashDao(String logstashHostString, int logstashPortInt) {
     super(logstashHostString, logstashPortInt);
   }

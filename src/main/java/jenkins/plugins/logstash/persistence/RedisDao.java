@@ -41,7 +41,10 @@ import redis.clients.jedis.exceptions.JedisException;
  * @since 1.0.0
  */
 public class RedisDao extends HostBasedLogstashIndexerDao {
-  private final JedisPool pool;
+
+  private static final long serialVersionUID = 1L;
+
+  private transient JedisPool pool;
 
   private final String password;
   private final String key;
@@ -68,7 +71,15 @@ public class RedisDao extends HostBasedLogstashIndexerDao {
 
     // The JedisPool must be a singleton
     // We assume this is used as a singleton as well
-    pool = factory == null ? new JedisPool(new JedisPoolConfig(), host, port) : factory;
+    pool = factory;
+  }
+
+  private void getJedisPool()
+  {
+    if (pool == null)
+    {
+      pool = new JedisPool(new JedisPoolConfig(), getHost(), getPort());
+    }
   }
 
   public String getPassword()
@@ -86,6 +97,7 @@ public class RedisDao extends HostBasedLogstashIndexerDao {
     Jedis jedis = null;
     boolean connectionBroken = false;
     try {
+      getJedisPool();
       jedis = pool.getResource();
       if (!StringUtils.isBlank(password)) {
         jedis.auth(password);

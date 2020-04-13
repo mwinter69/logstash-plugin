@@ -3,9 +3,13 @@ package jenkins.plugins.logstash.pipeline;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
 import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
@@ -15,11 +19,13 @@ import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.google.common.collect.ImmutableSet;
+
 import hudson.Extension;
-import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import jenkins.YesNoMaybe;
-import jenkins.plugins.logstash.LogstashConsoleLogFilter;
+import jenkins.plugins.logstash.LogstashConfiguration;
 
 /**
  * This is the pipeline counterpart of the LogstashJobProperty.
@@ -27,6 +33,7 @@ import jenkins.plugins.logstash.LogstashConsoleLogFilter;
  */
 public class LogstashStep extends Step {
 
+  private static final Logger LOGGER = Logger.getLogger(LogstashStep.class.getName());
   /** Constructor. */
   @DataBoundConstructor
   public LogstashStep() {}
@@ -56,20 +63,21 @@ public class LogstashStep extends Step {
     @Override
     public boolean start() throws Exception {
       StepContext context = getContext();
-      context
-          .newBodyInvoker()
-          .withContext(createConsoleLogFilter(context))
-          .withCallback(BodyExecutionCallback.wrap(context))
-          .start();
+      BodyInvoker invoker = context.newBodyInvoker().withCallback(BodyExecutionCallback.wrap(context));
+      if (LogstashConfiguration.getInstance().isEnableGlobally())
+      {
+        context.get(TaskListener.class).getLogger().println("The logstash step is unnecessary when logstash is enabled for all builds.");
+      } else {
+            invoker.withContext(getMergedDecorator(context));
+      }
+      invoker.start();
       return false;
     }
 
-    private ConsoleLogFilter createConsoleLogFilter(StepContext context)
+    private TaskListenerDecorator getMergedDecorator(StepContext context)
         throws IOException, InterruptedException {
-      ConsoleLogFilter original = context.get(ConsoleLogFilter.class);
-      Run<?, ?> build = context.get(Run.class);
-      ConsoleLogFilter subsequent = new LogstashConsoleLogFilter(build);
-      return BodyInvoker.mergeConsoleLogFilters(original, subsequent);
+      Run<?, ?> run = context.get(Run.class);
+      return TaskListenerDecorator.merge(context.get(TaskListenerDecorator.class), new GlobalDecorator(run));
     }
 
     /** {@inheritDoc} */
@@ -104,9 +112,7 @@ public class LogstashStep extends Step {
     @Override
     public Set<? extends Class<?>> getRequiredContext()
     {
-      Set<Class<?>> contexts = new HashSet<>();
-      contexts.add(Run.class);
-      return contexts;
+      return ImmutableSet.of(Run.class);
     }
   }
 

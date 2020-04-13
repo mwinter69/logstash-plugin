@@ -37,6 +37,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,22 +52,24 @@ import java.util.List;
  * @author Liam Newman
  * @since 1.0.5
  */
-public class LogstashWriter {
+public class LogstashWriter implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final OutputStream errorStream;
-  private final Run<?, ?> build;
+  private final transient Run<?, ?> build;
   private final TaskListener listener;
   private final BuildData buildData;
   private final String jenkinsUrl;
   private final LogstashIndexerDao dao;
   private boolean connectionBroken;
-  private final Charset charset;
+  private final String charset;
 
   public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, Charset charset) {
     this.errorStream = error != null ? error : System.err;
     this.build = run;
     this.listener = listener;
-    this.charset = charset;
+    this.charset = charset.toString();
     this.dao = this.getDaoOrNull();
     if (this.dao == null) {
       this.jenkinsUrl = "";
@@ -82,7 +85,7 @@ public class LogstashWriter {
    *
    * @return the charset
    */
-  public Charset getCharset()
+  public String getCharset()
   {
     return charset;
   }
@@ -159,7 +162,7 @@ public class LogstashWriter {
   }
 
   String getJenkinsUrl() {
-    return Jenkins.getInstance().getRootUrl();
+    return Jenkins.get().getRootUrl();
   }
 
   /**
@@ -207,8 +210,11 @@ public class LogstashWriter {
   private void logErrorMessage(String msg) {
     try {
       connectionBroken = true;
-      errorStream.write(msg.getBytes(charset));
-      errorStream.flush();
+      if (errorStream != null)
+      {
+        errorStream.write(msg.getBytes(charset));
+        errorStream.flush();
+      }
     } catch (IOException ex) {
       // This should never happen, but if it does we just have to let it go.
       ex.printStackTrace();

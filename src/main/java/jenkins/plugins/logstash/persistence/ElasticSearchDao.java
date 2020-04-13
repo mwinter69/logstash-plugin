@@ -36,6 +36,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -63,7 +64,9 @@ import jenkins.plugins.logstash.utils.SSLHelper;
  */
 public class ElasticSearchDao extends AbstractLogstashIndexerDao {
 
-  private final HttpClientBuilder clientBuilder;
+  private static final long serialVersionUID = 1L;
+
+  private transient HttpClientBuilder clientBuilder;
   private final URI uri;
   private final String auth;
   private final Range<Integer> successCodes = closedOpen(200,300);
@@ -71,7 +74,8 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
   private String username;
   private String password;
   private String mimeType;
-  private KeyStore customKeyStore;
+  private byte[] keystoreBytes;
+  private String keyStorePassword;
 
   //primary constructor used by indexer factory
   public ElasticSearchDao(URI uri, String username, String password) {
@@ -106,7 +110,28 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
       auth = null;
     }
 
-    clientBuilder = factory == null ? HttpClientBuilder.create() : factory;
+    clientBuilder = factory;
+  }
+
+  private void getClientBuilder() throws IOException
+  {
+    if (clientBuilder == null) {
+      clientBuilder = HttpClientBuilder.create();
+      if (keystoreBytes != null)
+      {
+        KeyStore trustStore;
+        try
+        {
+          trustStore = KeyStore.getInstance("PKCS12");
+          trustStore.load(new ByteArrayInputStream(keystoreBytes), keyStorePassword.toCharArray());
+          SSLHelper.setClientBuilderSSLContext(clientBuilder, trustStore);
+        }
+        catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | KeyManagementException e)
+        {
+          throw new IOException(e);
+        }
+      }
+    }
   }
 
 
@@ -152,19 +177,19 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
     this.mimeType = mimeType;
   }
 
-  public KeyStore getCustomKeyStore() {
-    return this.customKeyStore;
-  }
-
   String getAuth()
   {
     return auth;
   }
 
-  public void setCustomKeyStore(KeyStore customKeyStore) throws
-          CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-    SSLHelper.setClientBuilderSSLContext(this.clientBuilder, customKeyStore);
-    this.customKeyStore = customKeyStore;
+  public void setCustomKeyStore(KeyStore customKeyStore, String keyStorePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+    if (customKeyStore != null)
+    {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      customKeyStore.store(bos, keyStorePassword.toCharArray());
+      keystoreBytes = bos.toByteArray();
+      this.keyStorePassword = keyStorePassword;
+    }
   }
 
   HttpPost getHttpPost(String data) {
@@ -185,6 +210,7 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
   public void push(String data) throws IOException {
     HttpPost post = getHttpPost(data);
 
+    getClientBuilder();
     try (CloseableHttpClient httpClient = clientBuilder.build(); CloseableHttpResponse response = httpClient.execute(post)) {
       if (!successCodes.contains(response.getStatusLine().getStatusCode())) {
         throw new IOException(this.getErrorMessage(response));

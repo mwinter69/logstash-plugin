@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import net.sf.json.JSONObject;
 
@@ -62,15 +63,19 @@ import com.google.gson.GsonBuilder;
  * @author Rusty Gerard
  * @since 1.0.0
  */
-public class BuildData {
+public class BuildData implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   // ISO 8601 date format
   private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
-  public static class TestData {
+  public static class TestData implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final int totalCount, skipCount, failCount, passCount;
     private final List<FailedTest> failedTestsWithErrorDetail;
     private final List<String> failedTests;
 
-    public static class FailedTest {
+    public static class FailedTest implements Serializable {
+      private static final long serialVersionUID = 1L;
       private final String fullName, errorDetails;
       public FailedTest(String fullName, String errorDetails) {
         super();
@@ -262,14 +267,16 @@ public class BuildData {
 
   public void updateResult()
   {
-    if (result == null && build.getResult() != null)
-    {
-      Result result = build.getResult();
-      this.result = result == null ? null : result.toString();
-    }
-    Action testResultAction = build.getAction(AbstractTestResultAction.class);
-    if (testResults == null && testResultAction != null) {
-      testResults = new TestData(testResultAction);
+    if (build != null) {
+      if (result == null && build.getResult() != null)
+      {
+        Result result = build.getResult();
+        this.result = result == null ? null : result.toString();
+      }
+      Action testResultAction = build.getAction(AbstractTestResultAction.class);
+      if (testResults == null && testResultAction != null) {
+        testResults = new TestData(testResultAction);
+      }
     }
   }
 

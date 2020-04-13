@@ -1,7 +1,8 @@
 package jenkins.plugins.logstash;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
@@ -51,6 +52,23 @@ public class PipelineTest
     assertThat(dataLines.size(), equalTo(1));
     JSONObject firstLine = dataLines.get(0);
     JSONObject data = firstLine.getJSONObject("data");
+    assertThat(data.getString("result"),equalTo("SUCCESS"));
+  }
+
+  @Test
+  public void globalLogstash() throws Exception
+  {
+    LogstashConfiguration config = LogstashConfiguration.getInstance();
+    config.setEnableGlobally(true);
+    WorkflowJob p = j.jenkins.createProject(WorkflowJob.class, "p");
+    p.setDefinition(new CpsFlowDefinition(
+        "currentBuild.result = 'SUCCESS'\n" +
+        "echo 'Message'\n", true));
+    j.assertBuildStatusSuccess(p.scheduleBuild2(0).get());
+    List<JSONObject> dataLines = memoryDao.getOutput();
+    assertThat(dataLines.size(), greaterThan(0));
+    JSONObject lastLine = dataLines.get(dataLines.size()-1);
+    JSONObject data = lastLine.getJSONObject("data");
     assertThat(data.getString("result"),equalTo("SUCCESS"));
   }
 
