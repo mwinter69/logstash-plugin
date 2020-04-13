@@ -64,9 +64,17 @@ public class LogstashWriter implements Serializable {
   private final LogstashIndexerDao dao;
   private boolean connectionBroken;
   private final String charset;
+  private final String stageName;
+  private final String agentName;
 
   public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, Charset charset) {
+    this(run, error, listener, charset, null, null);
+  }
+
+  public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, Charset charset, String stageName, String agentName) {
     this.errorStream = error != null ? error : System.err;
+    this.stageName = stageName;
+    this.agentName = agentName;
     this.build = run;
     this.listener = listener;
     this.charset = charset.toString();
@@ -157,7 +165,7 @@ public class LogstashWriter implements Serializable {
     if (build instanceof AbstractBuild) {
       return new BuildData((AbstractBuild<?, ?>) build, new Date(), listener);
     } else {
-      return new BuildData(build, new Date(), listener);
+      return new BuildData(build, new Date(), listener, stageName, agentName);
     }
   }
 

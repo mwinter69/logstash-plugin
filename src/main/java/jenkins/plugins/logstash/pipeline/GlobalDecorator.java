@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 
 import hudson.Extension;
@@ -17,41 +18,48 @@ import jenkins.plugins.logstash.LogstashOutputStream;
 import jenkins.plugins.logstash.LogstashWriter;
 
 public class GlobalDecorator extends TaskListenerDecorator {
-    private static final Logger LOGGER = Logger.getLogger(GlobalDecorator.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(GlobalDecorator.class.getName());
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private transient Run<?, ?> run;
+  private transient Run<?, ?> run;
+  private String stageName;
+  private String agentName;
 
-    public GlobalDecorator(Run<?, ?> run) {
-	LOGGER.log(Level.INFO, "Creating decorator for {0}", run.toString());
-	this.run = run;
-    }
+  public GlobalDecorator(Run<?, ?> run) {
+    this(run, null, null);
+  }
+  public GlobalDecorator(Run<?, ?> run, String stageName, String agentName) {
+    LOGGER.log(Level.INFO, "Creating decorator for {0}", run.toString());
+    this.run = run;
+    this.stageName = stageName;
+    this.agentName = agentName;
+  }
+
+  @Override
+  public OutputStream decorate(OutputStream logger) throws IOException, InterruptedException {
+    LogstashWriter writer = new LogstashWriter(run, logger, null, StandardCharsets.UTF_8, stageName, agentName);
+    LogstashOutputStream out = new LogstashOutputStream(logger, writer);
+    return out;
+  }
+
+  @Extension
+  public static final class Factory implements TaskListenerDecorator.Factory {
 
     @Override
-    public OutputStream decorate(OutputStream logger) throws IOException, InterruptedException {
-	LogstashWriter writer = new LogstashWriter(run, logger, null, StandardCharsets.UTF_8);
-	LogstashOutputStream out = new LogstashOutputStream(logger, writer);
-	return out;
+    public TaskListenerDecorator of(FlowExecutionOwner owner) {
+      if (!LogstashConfiguration.getInstance().isEnableGlobally()) {
+        return null;
+      }
+      try {
+        Queue.Executable executable = owner.getExecutable();
+        if (executable instanceof WorkflowRun) {
+          return new GlobalDecorator((Run<?, ?>) executable);
+        }
+      } catch (IOException x) {
+        LOGGER.log(Level.WARNING, null, x);
+      }
+      return null;
     }
-
-    @Extension
-    public static final class Factory implements TaskListenerDecorator.Factory {
-
-	@Override
-	public TaskListenerDecorator of(FlowExecutionOwner owner) {
-	    if (!LogstashConfiguration.getInstance().isEnableGlobally()) {
-		return null;
-	    }
-	    try {
-		Queue.Executable executable = owner.getExecutable();
-		if (executable instanceof Run) { // we need at least getStartTimeInMillis
-		    return new GlobalDecorator((Run<?, ?>) executable);
-		}
-	    } catch (IOException x) {
-		LOGGER.log(Level.WARNING, null, x);
-	    }
-	    return null;
-	}
-    }
+  }
 }

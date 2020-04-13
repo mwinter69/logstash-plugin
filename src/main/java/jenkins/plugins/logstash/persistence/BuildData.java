@@ -165,6 +165,8 @@ public class BuildData implements Serializable {
   private String url;
   private String buildHost;
   private String buildLabel;
+  private String stageName;
+  private String agentName;
   private int buildNum;
   private long buildDuration;
   private transient String timestamp; // This belongs in the root object
@@ -217,9 +219,11 @@ public class BuildData implements Serializable {
   }
 
   // Pipeline project build
-  public BuildData(Run<?, ?> build, Date currentTime, TaskListener listener) {
+  public BuildData(Run<?, ?> build, Date currentTime, TaskListener listener, String stageName, String agentName) {
     initData(build, currentTime);
 
+    this.agentName = agentName;
+    this.stageName = stageName;
     rootProjectName = projectName;
     rootFullProjectName = fullProjectName;
     rootProjectDisplayName = displayName;
@@ -448,5 +452,21 @@ public class BuildData implements Serializable {
 
   public void setTestResults(TestData testResults) {
     this.testResults = testResults;
+  }
+
+  public String getStageName() {
+    return stageName;
+  }
+
+  public void setStageName(String stageName) {
+    this.stageName = stageName;
+  }
+
+  public String getAgentName() {
+    return agentName;
+  }
+
+  public void setAgentName(String agentName) {
+    this.agentName = agentName;
   }
 }
