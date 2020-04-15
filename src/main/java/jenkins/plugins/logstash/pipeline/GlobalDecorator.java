@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Run;
@@ -17,10 +18,9 @@ import jenkins.plugins.logstash.LogstashConfiguration;
 import jenkins.plugins.logstash.LogstashOutputStream;
 import jenkins.plugins.logstash.LogstashWriter;
 
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class GlobalDecorator extends TaskListenerDecorator {
   private static final Logger LOGGER = Logger.getLogger(GlobalDecorator.class.getName());
-
-  private static final long serialVersionUID = 1L;
 
   private transient Run<?, ?> run;
   private String stageName;

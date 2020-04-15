@@ -39,8 +39,6 @@ import net.sf.json.JSONObject;
  */
 public abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao, Serializable {
 
-  private static final long serialVersionUID = 1L;
-
   @Override
   public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines) {
     JSONObject payload = new JSONObject();

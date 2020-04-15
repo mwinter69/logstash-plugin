@@ -7,12 +7,13 @@ import com.cloudbees.syslog.MessageFormat;
 import com.cloudbees.syslog.Severity;
 import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /*
  * TODO: add support for TcpSyslogMessageSender
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class SyslogDao extends HostBasedLogstashIndexerDao {
-
-  private static final long serialVersionUID = 1L;
 
   private MessageFormat messageFormat = MessageFormat.RFC_3164;
   private transient UdpSyslogMessageSender messageSender;

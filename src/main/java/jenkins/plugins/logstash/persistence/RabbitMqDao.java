@@ -33,6 +33,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * RabbitMQ Data Access Object.
  *
@@ -42,9 +44,8 @@ import com.rabbitmq.client.ConnectionFactory;
  * @author Rusty Gerard
  * @since 1.0.0
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class RabbitMqDao extends HostBasedLogstashIndexerDao {
-
-  private static final long serialVersionUID = 1L;
 
   private transient ConnectionFactory pool;
 

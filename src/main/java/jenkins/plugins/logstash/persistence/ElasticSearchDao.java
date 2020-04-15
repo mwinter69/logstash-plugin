@@ -53,6 +53,7 @@ import java.security.cert.CertificateException;
 
 import com.google.common.collect.Range;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jenkins.plugins.logstash.utils.SSLHelper;
 
 
@@ -62,9 +63,8 @@ import jenkins.plugins.logstash.utils.SSLHelper;
  * @author Liam Newman
  * @since 1.0.4
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class ElasticSearchDao extends AbstractLogstashIndexerDao {
-
-  private static final long serialVersionUID = 1L;
 
   private transient HttpClientBuilder clientBuilder;
   private final URI uri;

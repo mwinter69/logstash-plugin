@@ -79,7 +79,6 @@ public class AbstractLogstashIndexerDaoTest {
 
   private AbstractLogstashIndexerDao getInstance() {
     return new AbstractLogstashIndexerDao() {
-      private static final long serialVersionUID = 1L;
 
       @Override
     public void push(String data) throws IOException {}

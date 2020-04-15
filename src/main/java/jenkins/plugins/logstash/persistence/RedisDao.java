@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -40,9 +41,8 @@ import redis.clients.jedis.exceptions.JedisException;
  * @author Rusty Gerard
  * @since 1.0.0
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class RedisDao extends HostBasedLogstashIndexerDao {
-
-  private static final long serialVersionUID = 1L;
 
   private transient JedisPool pool;
 

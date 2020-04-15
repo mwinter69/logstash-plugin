@@ -35,6 +35,8 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -52,9 +54,8 @@ import java.util.List;
  * @author Liam Newman
  * @since 1.0.5
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class LogstashWriter implements Serializable {
-
-  private static final long serialVersionUID = 1L;
 
   private final OutputStream errorStream;
   private final transient Run<?, ?> build;

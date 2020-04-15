@@ -57,25 +57,25 @@ import org.apache.commons.lang.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * POJO for mapping build info to JSON.
  *
  * @author Rusty Gerard
  * @since 1.0.0
  */
+@SuppressFBWarnings(value="SE_NO_SERIALVERSIONID")
 public class BuildData implements Serializable {
-  private static final long serialVersionUID = 1L;
 
   // ISO 8601 date format
   private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
   public static class TestData implements Serializable {
-    private static final long serialVersionUID = 1L;
     private final int totalCount, skipCount, failCount, passCount;
     private final List<FailedTest> failedTestsWithErrorDetail;
     private final List<String> failedTests;
 
     public static class FailedTest implements Serializable {
-      private static final long serialVersionUID = 1L;
       private final String fullName, errorDetails;
       public FailedTest(String fullName, String errorDetails) {
         super();
